@@ -2,3 +2,4 @@
 # ------------------------------------------------------------------------------
 USE_DOCKER=yes
 IPYTHONDIR=/app/.ipython
+DATABASE_URL=postgres://postgres:password@postgres:5432/todo_list
