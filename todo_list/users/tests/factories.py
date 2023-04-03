@@ -6,7 +6,25 @@ from factory import Faker, post_generation
 from factory.django import DjangoModelFactory
 
 
+class MockUserFactory(DjangoModelFactory):
+    """
+    User Factory to seed local database for testing
+    """
+
+    username = Faker("user_name")
+    email = Faker("email")
+    name = Faker("name")
+
+    class Meta:
+        model = get_user_model()
+        django_get_or_create = ["username"]
+
+
 class UserFactory(DjangoModelFactory):
+    """
+    User Factory for unit tests
+    """
+
     username = Faker("user_name")
     email = Faker("email")
     name = Faker("name")
