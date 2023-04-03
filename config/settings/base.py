@@ -293,6 +293,10 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Documentation of API endpoints of Todo List",
     "VERSION": "1.0.0",
     "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
+    # Custom grouping for API routes in Swagger / ReDoc
+    # https://stackoverflow.com/questions/62830171/custom-grouping-on-openapi-endpoints-with-django-rest-framework
+    "SCHEMA_PATH_PREFIX": r"/api/",
+    "AUTHENTICATION_CLASSES": "drf_spectacular.authentication.TokenScheme",
 }
 # Your stuff...
 # ------------------------------------------------------------------------------
