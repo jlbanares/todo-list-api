@@ -276,7 +276,6 @@ SOCIALACCOUNT_FORMS = {"signup": "todo_list.users.forms.UserSocialSignupForm"}
 # django-rest-framework - https://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
@@ -297,6 +296,9 @@ SPECTACULAR_SETTINGS = {
     # https://stackoverflow.com/questions/62830171/custom-grouping-on-openapi-endpoints-with-django-rest-framework
     "SCHEMA_PATH_PREFIX": r"/api/",
     "AUTHENTICATION_CLASSES": "drf_spectacular.authentication.TokenScheme",
+    "SWAGGER_UI_SETTINGS": {
+        "persistAuthorization": True,
+    },
 }
 # Your stuff...
 # ------------------------------------------------------------------------------

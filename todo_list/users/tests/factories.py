@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from typing import Any
 
 from django.contrib.auth import get_user_model
-from factory import Faker, post_generation
+from factory import Faker, LazyAttribute, post_generation
 from factory.django import DjangoModelFactory
 
 
@@ -11,9 +11,17 @@ class MockUserFactory(DjangoModelFactory):
     User Factory to seed local database for testing
     """
 
-    username = Faker("user_name")
+    username = LazyAttribute(lambda o: f"test-{o.mocked_username}")
     email = Faker("email")
     name = Faker("name")
+
+    @post_generation
+    def password(self, create: bool, extracted: Sequence[Any], **kwargs):
+        password = "testpassword123"
+        self.set_password(password)
+
+    class Params:
+        mocked_username = Faker("user_name")
 
     class Meta:
         model = get_user_model()
