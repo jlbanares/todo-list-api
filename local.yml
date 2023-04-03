@@ -33,19 +33,3 @@ services:
       - todo_list_local_postgres_data_backups:/backups
     env_file:
       - ./.envs/.local/.postgres
-
-  docs:
-    image: todo_list_local_docs
-    container_name: todo_list_local_docs
-    build:
-      context: .
-      dockerfile: ./compose/local/docs/Dockerfile
-    env_file:
-      - ./.envs/.local/.django
-    volumes:
-      - ./docs:/docs:z
-      - ./config:/app/config:z
-      - ./todo_list:/app/todo_list:z
-    ports:
-      - "9000:9000"
-    command: /start-docs

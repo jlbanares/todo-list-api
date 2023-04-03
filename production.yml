@@ -14,7 +14,6 @@ services:
     image: todo_list_production_django
     depends_on:
       - postgres
-      - redis
     env_file:
       - ./.envs/.production/.django
       - ./.envs/.production/.postgres
@@ -43,9 +42,6 @@ services:
     ports:
       - "0.0.0.0:80:80"
       - "0.0.0.0:443:443"
-
-  redis:
-    image: redis:6
 
   awscli:
     build:
