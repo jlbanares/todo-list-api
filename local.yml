@@ -33,3 +33,6 @@ services:
       - todo_list_local_postgres_data_backups:/backups
     env_file:
       - ./.envs/.local/.postgres
+    # For ease of local development, the postgres database is exposed to localhost at port 5433
+    ports:
+      - "0.0.0.0:5433:5432"
