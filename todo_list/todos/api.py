@@ -11,6 +11,26 @@ from todo_list.utils.pagination import LimitOffsetPagination, get_paginated_resp
 from . import selectors, services
 
 
+class TodoDetailAPIView(APIErrorsMixin, APIView):
+    class TodoItemDetailSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Todo
+            exclude = ("user",)
+
+    def get(self, request, id):
+        """
+        Return a specific todo of a user
+        """
+
+        todo_item = selectors.get_todo_item(
+            id=id,
+            user=request.user,
+        )
+
+        data = self.TodoItemDetailSerializer(todo_item).data
+        return Response(data, status=status.HTTP_200_OK)
+
+
 class TodoListAPIView(APIErrorsMixin, APIView):
     class Pagination(LimitOffsetPagination):
         default_limit = 20
@@ -69,7 +89,11 @@ class TodoListAPIView(APIErrorsMixin, APIView):
 class TodoCreateAPIView(APIErrorsMixin, APIView):
     class TodoCreateRequestSerializer(serializers.Serializer):
         title = serializers.CharField()
-        detail = serializers.CharField(required=False, default="")
+        detail = serializers.CharField(
+            required=False,
+            default="",
+            allow_blank=True,
+        )
 
     class TodoCreateResponseSerializer(serializers.ModelSerializer):
         class Meta:
@@ -86,12 +110,66 @@ class TodoCreateAPIView(APIErrorsMixin, APIView):
         """
         body = self.TodoCreateRequestSerializer(data=request.data)
         body.is_valid(raise_exception=True)
+        params = body.validated_data
 
         todo = services.create_new_todo(
             user=request.user,
-            title=body["title"],
-            description=body["description"],
+            title=params["title"],
+            description=params.get("description"),
         )
 
         data = self.TodoCreateResponseSerializer(todo).data
         return Response(data, status=status.HTTP_201_CREATED)
+
+
+class TodoUpdateAPIView(APIErrorsMixin, APIView):
+    class TodoUpdateRequestSerializer(serializers.Serializer):
+        title = serializers.CharField(required=False)
+        detail = serializers.CharField(required=False)
+        completed = serializers.BooleanField(required=False)
+        order = serializers.IntegerField(min_value=0)
+
+    class TodoUpdateResponseSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Todo
+            exclude = ("user",)
+
+    @extend_schema(
+        request=TodoUpdateRequestSerializer,
+        responses={200: TodoUpdateResponseSerializer},
+    )
+    def put(self, request, id):
+        """
+        Update a todo item's details
+
+        This will only proceed if the user owns the todo ID provided.
+
+        Only the order field is required on the request body.
+        If updating only the order (rank) of the TODO item, then only provide the order.
+        """
+        body = self.TodoUpdateRequestSerializer(data=request.data)
+        body.is_valid(raise_exception=True)
+        params = body.validated_data
+
+        updated_todo = services.update_todo(
+            id=id,
+            user=request.user,
+            title=params.get("title"),
+            description=params.get("description"),
+            completed=params.get("completed"),
+            order=params["order"],
+        )
+
+        data = self.TodoUpdateResponseSerializer(updated_todo).data
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class TodoDeleteAPIView(APIErrorsMixin, APIView):
+    def delete(self, request, id):
+        """
+        Delete a specific todo item
+
+        This will only proceed if the user owns the todo ID provided.
+        """
+        services.delete_todo(id=id, user=request.user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
